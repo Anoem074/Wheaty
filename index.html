@@ -46,13 +46,21 @@
                     <i class="fas fa-map-marker-alt"></i>
                 </div>
                 <div class="location-text">
-                    <span class="city-name">Laden...</span>
-                    <span class="last-updated">Nu</span>
+                    <span class="city-name" id="cityName">Laden...</span>
+                    <span class="last-updated" id="lastUpdated">Nu</span>
                 </div>
             </div>
-            <button class="refresh-btn" id="refreshBtn">
-                <i class="fas fa-sync-alt"></i>
-            </button>
+            <div class="header-controls">
+                <div class="search-container">
+                    <input type="text" id="locationSearch" placeholder="Zoek locatie..." class="location-input">
+                    <button class="search-btn" onclick="searchLocation()" title="Zoek locatie">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <button class="refresh-btn" id="refreshBtn" title="Vernieuwen">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
         </header>
 
         <!-- Current Weather Card -->
@@ -143,21 +151,31 @@
             <div class="radar-container">
                 <!-- Buienradar Widget -->
                 <div class="radar-widget-container">
+                    <div class="radar-loading" id="radarLoading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Radar wordt geladen...</p>
+                    </div>
                     <iframe 
-                        src="https://image.buienradar.nl/2.0/image/single/RadarMapRainNL?height=300&width=300&renderBackground=True&renderBranding=False&renderText=True" 
+                        id="radarIframe"
+                        src="" 
                         width="300" 
                         height="300" 
                         frameborder="0" 
                         scrolling="no"
-                        class="radar-iframe">
+                        class="radar-iframe"
+                        style="display: none;"
+                        onload="hideRadarLoading()">
                     </iframe>
                     <div class="radar-overlay">
                         <div class="radar-controls">
-                            <button class="radar-btn" onclick="refreshRadar()">
+                            <button class="radar-btn" onclick="refreshRadar()" title="Vernieuwen">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
-                            <button class="radar-btn" onclick="toggleRadarFullscreen()">
+                            <button class="radar-btn" onclick="toggleRadarFullscreen()" title="Volledig scherm">
                                 <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="radar-btn" onclick="openBuienradarWebsite()" title="Open Buienradar">
+                                <i class="fas fa-external-link-alt"></i>
                             </button>
                         </div>
                     </div>

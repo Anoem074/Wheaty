@@ -1093,13 +1093,23 @@ body::after {
     }
     
     .weather-stats {
-        gap: 8px;
+        gap: 6px;
         grid-template-columns: 1fr 1fr;
     }
     
     .stat {
-        padding: 8px 0;
-        font-size: 0.85rem;
+        padding: 6px;
+        font-size: 0.75rem;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        opacity: 0.8;
+    }
+    
+    .stat-value {
+        font-size: 0.8rem;
+        font-weight: 600;
     }
     
     .hourly-item {
@@ -1292,6 +1302,81 @@ body::after {
     width: 48px;
     height: 48px;
     font-size: 18px;
+}
+
+/* Header Controls */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.location-input {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    width: 200px;
+    backdrop-filter: blur(10px);
+    transition: all var(--transition-smooth);
+}
+
+.location-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+    background: var(--glass-bg-hover);
+}
+
+.location-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--accent-blue);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all var(--transition-smooth);
+}
+
+.search-btn:hover {
+    background: rgba(79, 172, 254, 0.1);
+    transform: scale(1.1);
+}
+
+/* Radar Loading */
+.radar-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-secondary);
+    z-index: 10;
+}
+
+.radar-loading i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--accent-blue);
+}
+
+.radar-loading p {
+    font-size: 0.9rem;
+    margin: 0;
 }
 
 /* PWA Features */
