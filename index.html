@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeerApp - Stunning Weather PWA</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WeerApp">
+    <meta name="description" content="Prachtige weer app met glass-morphism design voor iPhone">
+    
+    <!-- Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="gradient-orb orb-4"></div>
+        <div class="gradient-orb orb-5"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="location-info">
+                <div class="location-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="location-text">
+                    <span class="city-name">Laden...</span>
+                    <span class="last-updated">Nu</span>
+                </div>
+            </div>
+            <button class="refresh-btn" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </header>
+
+        <!-- Current Weather Card -->
+        <div class="weather-card current-weather">
+            <div class="weather-main">
+                <div class="temperature">
+                    <span class="temp-value" id="currentTemp">--</span>
+                    <span class="temp-unit">°C</span>
+                </div>
+                <div class="weather-icon" id="weatherIcon">
+                    <div class="icon-placeholder">☀️</div>
+                </div>
+            </div>
+            <div class="weather-details">
+                <h2 class="weather-description" id="weatherDescription">Laden...</h2>
+                <div class="weather-stats">
+                    <div class="stat">
+                        <span class="stat-label">Gevoelstemperatuur</span>
+                        <span class="stat-value" id="feelsLike">--°C</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Luchtvochtigheid</span>
+                        <span class="stat-value" id="humidity">--%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Windsnelheid</span>
+                        <span class="stat-value" id="windSpeed">-- km/h</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hourly Forecast -->
+        <div class="weather-card hourly-forecast">
+            <div class="forecast-header">
+                <h3 class="card-title">24-uurs voorspelling</h3>
+                <div class="scroll-controls">
+                    <button class="scroll-btn scroll-left" id="scrollLeft">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="scroll-btn scroll-right" id="scrollRight">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="hourly-scroll-container">
+                <div class="hourly-container" id="hourlyContainer">
+                    <!-- Hourly items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Forecast -->
+        <div class="weather-card daily-forecast">
+            <h3 class="card-title">7-daagse voorspelling</h3>
+            <div class="daily-container" id="dailyContainer">
+                <!-- Daily items will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Buienradar Section -->
+        <div class="weather-card buienradar">
+            <h3 class="card-title">Buienradar</h3>
+            <div class="radar-container">
+                <div class="radar-placeholder" id="radarPlaceholder">
+                    <div class="radar-icon">🌧️</div>
+                    <p>Regenradar wordt geladen...</p>
+                </div>
+                <iframe id="radarFrame" src="" style="display: none;"></iframe>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Weerdata laden...</p>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <div class="error-content">
+                <div class="error-icon">⚠️</div>
+                <h3>Oeps! Er ging iets mis</h3>
+                <p>We kunnen de weerdata niet laden. Controleer je internetverbinding en probeer opnieuw.</p>
+                <button class="retry-btn" id="retryBtn">Opnieuw proberen</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

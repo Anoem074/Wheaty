@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Icon Creator</title>
+</head>
+<body>
+    <h1>Creating Icons...</h1>
+    <div id="output"></div>
+    
+    <script>
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Glass effect
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Sun
+            const center = size / 2;
+            const sunRadius = size * 0.23;
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(center, center, sunRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Sun rays
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = Math.max(2, size / 64);
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * Math.PI) / 4;
+                const x1 = center + Math.cos(angle) * (sunRadius + 10);
+                const y1 = center + Math.sin(angle) * (sunRadius + 10);
+                const x2 = center + Math.cos(angle) * (sunRadius + size * 0.15);
+                const y2 = center + Math.sin(angle) * (sunRadius + size * 0.15);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            // Highlight
+            const highlightSize = size * 0.08;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(center - sunRadius * 0.7, center - sunRadius * 0.7, highlightSize, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        function createAllIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const output = document.getElementById('output');
+            
+            sizes.forEach(size => {
+                const iconDataUrl = createIcon(size);
+                const img = document.createElement('img');
+                img.src = iconDataUrl;
+                img.width = 64;
+                img.height = 64;
+                img.style.margin = '5px';
+                img.title = `${size}x${size}`;
+                output.appendChild(img);
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.href = iconDataUrl;
+                link.download = `icon-${size}x${size}.png`;
+                link.textContent = `Download ${size}x${size}`;
+                link.style.display = 'block';
+                link.style.margin = '5px';
+                output.appendChild(link);
+            });
+        }
+        
+        // Auto-create on load
+        window.onload = createAllIcons;
+    </script>
+</body>
+</html>

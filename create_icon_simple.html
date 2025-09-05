@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Icon Creator</title>
+</head>
+<body>
+    <canvas id="canvas" width="512" height="512" style="border: 1px solid #ccc;"></canvas>
+    <br>
+    <button onclick="createAllIcons()">Create All Icons</button>
+    
+    <script>
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Glass effect
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Sun
+            const center = size / 2;
+            const sunRadius = size * 0.23;
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(center, center, sunRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Sun rays
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = Math.max(2, size / 64);
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * Math.PI) / 4;
+                const x1 = center + Math.cos(angle) * (sunRadius + 10);
+                const y1 = center + Math.sin(angle) * (sunRadius + 10);
+                const x2 = center + Math.cos(angle) * (sunRadius + size * 0.15);
+                const y2 = center + Math.sin(angle) * (sunRadius + size * 0.15);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            
+            // Highlight
+            const highlightSize = size * 0.08;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(center - sunRadius * 0.7, center - sunRadius * 0.7, highlightSize, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            return canvas;
+        }
+        
+        function downloadIcon(size) {
+            const icon = createIcon(size);
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.png`;
+            link.href = icon.toDataURL();
+            link.click();
+        }
+        
+        function createAllIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            sizes.forEach((size, index) => {
+                setTimeout(() => downloadIcon(size), index * 200);
+            });
+        }
+        
+        // Show preview
+        const preview = createIcon(512);
+        document.getElementById('canvas').getContext('2d').drawImage(preview, 0, 0);
+    </script>
+</body>
+</html>
