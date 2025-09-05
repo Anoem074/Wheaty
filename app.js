@@ -49,6 +49,10 @@ class WeatherApp {
         const scrollLeftBtn = document.getElementById('scrollLeft');
         const scrollRightBtn = document.getElementById('scrollRight');
         
+        // Radar controls
+        window.refreshRadar = () => this.refreshRadar();
+        window.toggleRadarFullscreen = () => this.toggleRadarFullscreen();
+        
         refreshBtn.addEventListener('click', () => this.refreshWeather());
         retryBtn.addEventListener('click', () => this.retryLoad());
         
@@ -190,6 +194,17 @@ class WeatherApp {
         this.updateElement('feelsLike', `${Math.round(current.feels_like)}°C`);
         this.updateElement('humidity', `${current.humidity}%`);
         this.updateElement('windSpeed', `${Math.round(current.wind_speed * 3.6)} km/h`);
+        this.updateElement('visibility', `${Math.round((current.visibility || 10000) / 1000)} km`);
+        this.updateElement('pressure', `${current.pressure || 1013} hPa`);
+        this.updateElement('uvIndex', current.uvi || '--');
+        this.updateElement('precipitation', `${Math.round((current.pop || 0) * 100)}%`);
+        
+        // Calculate sunrise/sunset times
+        const now = new Date();
+        const sunrise = new Date(now.getTime() + (6 * 60 * 60 * 1000)); // 6 AM
+        const sunset = new Date(now.getTime() + (18 * 60 * 60 * 1000)); // 6 PM
+        this.updateElement('sunrise', sunrise.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }));
+        this.updateElement('sunset', sunset.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }));
         
         // Update weather icon
         this.updateWeatherIcon(current.weather[0].icon, current.weather[0].main);
@@ -697,6 +712,38 @@ class WeatherApp {
         
         console.log('Processed precipitation data:', precipitationData.slice(0, 5));
         // You can use this data to enhance the weather display
+    }
+
+    refreshRadar() {
+        const iframe = document.querySelector('.radar-iframe');
+        if (iframe) {
+            // Add timestamp to force refresh
+            const timestamp = new Date().getTime();
+            const baseUrl = iframe.src.split('?')[0];
+            iframe.src = `${baseUrl}?t=${timestamp}`;
+            
+            // Show refresh animation
+            const btn = event.target.closest('.radar-btn');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                }, 2000);
+            }
+        }
+    }
+
+    toggleRadarFullscreen() {
+        const container = document.querySelector('.radar-widget-container');
+        if (container) {
+            if (container.classList.contains('fullscreen')) {
+                container.classList.remove('fullscreen');
+                document.body.style.overflow = '';
+            } else {
+                container.classList.add('fullscreen');
+                document.body.style.overflow = 'hidden';
+            }
+        }
     }
 
     loadBuienradarIframe() {

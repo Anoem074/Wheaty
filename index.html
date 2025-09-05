@@ -81,6 +81,30 @@
                         <span class="stat-label">Windsnelheid</span>
                         <span class="stat-value" id="windSpeed">-- km/h</span>
                     </div>
+                    <div class="stat">
+                        <span class="stat-label">Luchtdruk</span>
+                        <span class="stat-value" id="pressure">-- hPa</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Zichtbaarheid</span>
+                        <span class="stat-value" id="visibility">-- km</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">UV-index</span>
+                        <span class="stat-value" id="uvIndex">--</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Neerslagkans</span>
+                        <span class="stat-value" id="precipitation">--%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Zonsopgang</span>
+                        <span class="stat-value" id="sunrise">--:--</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Zonsondergang</span>
+                        <span class="stat-value" id="sunset">--:--</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,14 +142,26 @@
             <h3 class="card-title">Buienradar</h3>
             <div class="radar-container">
                 <!-- Buienradar Widget -->
-                <iframe 
-                    src="https://image.buienradar.nl/2.0/image/single/RadarMapRainNL?height=256&width=256&renderBackground=True&renderBranding=False&renderText=True" 
-                    width="256" 
-                    height="256" 
-                    frameborder="0" 
-                    scrolling="no"
-                    style="border-radius: 12px; border: 1px solid var(--glass-border);">
-                </iframe>
+                <div class="radar-widget-container">
+                    <iframe 
+                        src="https://image.buienradar.nl/2.0/image/single/RadarMapRainNL?height=300&width=300&renderBackground=True&renderBranding=False&renderText=True" 
+                        width="300" 
+                        height="300" 
+                        frameborder="0" 
+                        scrolling="no"
+                        class="radar-iframe">
+                    </iframe>
+                    <div class="radar-overlay">
+                        <div class="radar-controls">
+                            <button class="radar-btn" onclick="refreshRadar()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="radar-btn" onclick="toggleRadarFullscreen()">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
                     <i class="fas fa-info-circle"></i> 
                     Data van <a href="https://www.buienradar.nl" target="_blank" style="color: var(--accent-blue);">Buienradar.nl</a>
