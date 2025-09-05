@@ -27,6 +27,7 @@ class WeatherApp {
             await this.loadWeatherData();
         }
         
+        // Setup PWA features in background
         this.registerServiceWorker();
         this.setupPWAFeatures();
     }
@@ -57,7 +58,7 @@ class WeatherApp {
             this.updateLocationDisplay('Amsterdam, NL');
             resolve(this.currentLocation);
             
-            // Optional: Try to get real location in background
+            // Optional: Try to get real location in background (only if not demo mode)
             if (navigator.geolocation && !this.isDemoMode) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -72,7 +73,7 @@ class WeatherApp {
                     },
                     {
                         enableHighAccuracy: false,
-                        timeout: 2000,
+                        timeout: 1000,
                         maximumAge: 300000
                     }
                 );
@@ -83,6 +84,15 @@ class WeatherApp {
     async loadWeatherData() {
         this.showLoading(true);
         
+        // Set a timeout to prevent infinite loading
+        const loadingTimeout = setTimeout(() => {
+            console.log('Loading timeout - using demo data');
+            this.weatherData = this.getDemoWeatherData();
+            this.updateWeatherDisplay();
+            this.updateLocationDisplay();
+            this.showLoading(false);
+        }, 5000); // 5 second timeout
+        
         try {
             if (!this.currentLocation) {
                 await this.getCurrentLocation();
@@ -91,6 +101,7 @@ class WeatherApp {
             if (this.isDemoMode) {
                 // Use demo data immediately
                 console.log('Using demo weather data');
+                clearTimeout(loadingTimeout);
                 this.weatherData = this.getDemoWeatherData();
                 this.updateWeatherDisplay();
                 this.updateLocationDisplay();
@@ -105,9 +116,11 @@ class WeatherApp {
             
             await Promise.all([weatherPromise, buienradarPromise]);
             
+            clearTimeout(loadingTimeout);
             this.showLoading(false);
         } catch (error) {
             console.error('Error loading weather data:', error);
+            clearTimeout(loadingTimeout);
             // Fallback to demo data
             this.weatherData = this.getDemoWeatherData();
             this.updateWeatherDisplay();

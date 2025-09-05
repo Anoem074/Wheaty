@@ -1,101 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Icon Generator</title>
+    <title>PWA Icon Generator</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        canvas { border: 1px solid #ccc; margin: 10px; }
-        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .icon {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        button {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>WeerApp Icon Generator</h1>
-    <canvas id="canvas" width="512" height="512"></canvas>
-    <br>
-    <button onclick="generateAllIcons()">Generate All Icons</button>
+    <h1>PWA Icon Generator</h1>
+    <p>Generating weather app icons...</p>
+    
+    <div id="icons"></div>
     
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        
         function createIcon(size) {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = size;
-            tempCanvas.height = size;
-            const tempCtx = tempCanvas.getContext('2d');
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
             
-            // Create gradient background
-            const gradient = tempCtx.createLinearGradient(0, 0, size, size);
-            gradient.addColorStop(0, '#667eea');
-            gradient.addColorStop(1, '#764ba2');
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#4facfe');
+            gradient.addColorStop(1, '#00f2fe');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
             
-            // Fill background
-            tempCtx.fillStyle = gradient;
-            tempCtx.fillRect(0, 0, size, size);
+            // Weather icon (sun)
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/3, 0, 2 * Math.PI);
+            ctx.fill();
             
-            // Add glass effect
-            tempCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            tempCtx.fillRect(0, 0, size, size);
-            
-            // Draw sun circle
-            const center = size / 2;
-            const sunRadius = size * 0.23;
-            tempCtx.fillStyle = '#FFD700';
-            tempCtx.beginPath();
-            tempCtx.arc(center, center, sunRadius, 0, 2 * Math.PI);
-            tempCtx.fill();
-            
-            // Add sun rays
-            tempCtx.strokeStyle = '#FFD700';
-            tempCtx.lineWidth = Math.max(2, size / 64);
-            const rayLength = size * 0.15;
-            
+            // Sun rays
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = size/20;
             for (let i = 0; i < 8; i++) {
                 const angle = (i * Math.PI) / 4;
-                const x1 = center + Math.cos(angle) * (sunRadius + 10);
-                const y1 = center + Math.sin(angle) * (sunRadius + 10);
-                const x2 = center + Math.cos(angle) * (sunRadius + rayLength);
-                const y2 = center + Math.sin(angle) * (sunRadius + rayLength);
-                
-                tempCtx.beginPath();
-                tempCtx.moveTo(x1, y1);
-                tempCtx.lineTo(x2, y2);
-                tempCtx.stroke();
+                const x1 = size/2 + Math.cos(angle) * size/2.5;
+                const y1 = size/2 + Math.sin(angle) * size/2.5;
+                const x2 = size/2 + Math.cos(angle) * size/2.8;
+                const y2 = size/2 + Math.sin(angle) * size/2.8;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
             }
             
-            // Add glass highlight
-            const highlightSize = size * 0.08;
-            const highlightX = center - sunRadius * 0.7;
-            const highlightY = center - sunRadius * 0.7;
-            tempCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            tempCtx.beginPath();
-            tempCtx.arc(highlightX, highlightY, highlightSize, 0, 2 * Math.PI);
-            tempCtx.fill();
-            
-            return tempCanvas;
+            return canvas;
         }
         
-        function downloadIcon(size) {
-            const icon = createIcon(size);
+        function downloadIcon(canvas, filename) {
             const link = document.createElement('a');
-            link.download = `icon-${size}x${size}.png`;
-            link.href = icon.toDataURL();
+            link.download = filename;
+            link.href = canvas.toDataURL();
             link.click();
         }
         
-        function generateAllIcons() {
-            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
-            sizes.forEach((size, index) => {
-                setTimeout(() => {
-                    downloadIcon(size);
-                    console.log(`Generated icon-${size}x${size}.png`);
-                }, index * 500);
-            });
-        }
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const container = document.getElementById('icons');
         
-        // Show preview
-        const preview = createIcon(512);
-        ctx.drawImage(preview, 0, 0);
+        sizes.forEach(size => {
+            const icon = createIcon(size);
+            const div = document.createElement('div');
+            div.className = 'icon';
+            div.innerHTML = `
+                <h3>${size}x${size}</h3>
+                <br>
+                <button onclick="downloadIcon(this.previousElementSibling, 'icon-${size}x${size}.png')">Download</button>
+            `;
+            div.insertBefore(icon, div.firstChild);
+            container.appendChild(div);
+        });
     </script>
 </body>
 </html>

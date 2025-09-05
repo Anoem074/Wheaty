@@ -104,6 +104,13 @@ self.addEventListener('fetch', (event) => {
 // Cache first strategy - check cache first, then network
 async function cacheFirst(request, cacheName) {
     try {
+        // Skip caching for unsupported schemes
+        if (request.url.startsWith('chrome-extension:') || 
+            request.url.startsWith('moz-extension:') ||
+            request.url.startsWith('safari-extension:')) {
+            return fetch(request);
+        }
+        
         const cachedResponse = await caches.match(request);
         if (cachedResponse) {
             return cachedResponse;
@@ -111,8 +118,13 @@ async function cacheFirst(request, cacheName) {
         
         const networkResponse = await fetch(request);
         if (networkResponse.ok) {
-            const cache = await caches.open(cacheName);
-            cache.put(request, networkResponse.clone());
+            try {
+                const cache = await caches.open(cacheName);
+                cache.put(request, networkResponse.clone());
+            } catch (cacheError) {
+                console.log('Cache put failed (unsupported scheme):', cacheError);
+                // Continue without caching
+            }
         }
         return networkResponse;
     } catch (error) {
@@ -202,10 +214,22 @@ async function weatherApiStrategy(request) {
 // Network first strategy - try network first, fallback to cache
 async function networkFirst(request, cacheName) {
     try {
+        // Skip caching for unsupported schemes
+        if (request.url.startsWith('chrome-extension:') || 
+            request.url.startsWith('moz-extension:') ||
+            request.url.startsWith('safari-extension:')) {
+            return fetch(request);
+        }
+        
         const networkResponse = await fetch(request);
         if (networkResponse.ok) {
-            const cache = await caches.open(cacheName);
-            cache.put(request, networkResponse.clone());
+            try {
+                const cache = await caches.open(cacheName);
+                cache.put(request, networkResponse.clone());
+            } catch (cacheError) {
+                console.log('Cache put failed (unsupported scheme):', cacheError);
+                // Continue without caching
+            }
         }
         return networkResponse;
     } catch (error) {
