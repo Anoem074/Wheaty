@@ -117,10 +117,19 @@
         <div class="weather-card buienradar">
             <h3 class="card-title">Buienradar</h3>
             <div class="radar-container">
-                <div class="radar-placeholder" id="radarPlaceholder">
-                    <div class="radar-icon">🌧️</div>
-                    <p>Regenradar wordt geladen...</p>
-                </div>
+                <!-- Buienradar Widget -->
+                <iframe 
+                    src="https://image.buienradar.nl/2.0/image/single/RadarMapRainNL?height=256&width=256&renderBackground=True&renderBranding=False&renderText=True" 
+                    width="256" 
+                    height="256" 
+                    frameborder="0" 
+                    scrolling="no"
+                    style="border-radius: 12px; border: 1px solid var(--glass-border);">
+                </iframe>
+                <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                    <i class="fas fa-info-circle"></i> 
+                    Data van <a href="https://www.buienradar.nl" target="_blank" style="color: var(--accent-blue);">Buienradar.nl</a>
+                </p>
                 <iframe id="radarFrame" src="" style="display: none;"></iframe>
             </div>
         </div>
