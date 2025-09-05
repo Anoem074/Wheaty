@@ -52,10 +52,19 @@
             </div>
             <div class="header-controls">
                 <div class="search-container">
-                    <input type="text" id="locationSearch" placeholder="Zoek locatie..." class="location-input">
+                    <input type="text" id="locationSearch" placeholder="Zoek locatie..." class="location-input" oninput="showLocationSuggestions()" onfocus="showLocationSuggestions()" onblur="hideLocationSuggestions()">
                     <button class="search-btn" onclick="searchLocation()" title="Zoek locatie">
                         <i class="fas fa-search"></i>
                     </button>
+                    <div class="location-suggestions" id="locationSuggestions">
+                        <div class="suggestion-header">Populaire locaties:</div>
+                        <div class="suggestion-item" onclick="selectLocation('Amsterdam')">Amsterdam, NL</div>
+                        <div class="suggestion-item" onclick="selectLocation('Brussel')">Brussel, BE</div>
+                        <div class="suggestion-item" onclick="selectLocation('Rotterdam')">Rotterdam, NL</div>
+                        <div class="suggestion-item" onclick="selectLocation('Antwerpen')">Antwerpen, BE</div>
+                        <div class="suggestion-item" onclick="selectLocation('Gent')">Gent, BE</div>
+                        <div class="suggestion-item" onclick="selectLocation('Utrecht')">Utrecht, NL</div>
+                    </div>
                 </div>
                 <button class="refresh-btn" id="refreshBtn" title="Vernieuwen">
                     <i class="fas fa-sync-alt"></i>
@@ -77,41 +86,86 @@
             <div class="weather-details">
                 <h2 class="weather-description" id="weatherDescription">Laden...</h2>
                 <div class="weather-stats">
-                    <div class="stat">
-                        <span class="stat-label">Gevoelstemperatuur</span>
-                        <span class="stat-value" id="feelsLike">--°C</span>
+                    <div class="stat primary-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Gevoelstemperatuur</span>
+                            <span class="stat-value" id="feelsLike">--°C</span>
+                        </div>
+                    </div>
+                    <div class="stat primary-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Luchtvochtigheid</span>
+                            <span class="stat-value" id="humidity">--%</span>
+                        </div>
+                    </div>
+                    <div class="stat primary-stat">
+                        <div class="stat-icon">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Windsnelheid</span>
+                            <span class="stat-value" id="windSpeed">-- km/h</span>
+                        </div>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Luchtvochtigheid</span>
-                        <span class="stat-value" id="humidity">--%</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Luchtdruk</span>
+                            <span class="stat-value" id="pressure">-- hPa</span>
+                        </div>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Windsnelheid</span>
-                        <span class="stat-value" id="windSpeed">-- km/h</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Zichtbaarheid</span>
+                            <span class="stat-value" id="visibility">-- km</span>
+                        </div>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Luchtdruk</span>
-                        <span class="stat-value" id="pressure">-- hPa</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">UV-index</span>
+                            <span class="stat-value" id="uvIndex">--</span>
+                        </div>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Zichtbaarheid</span>
-                        <span class="stat-value" id="visibility">-- km</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-cloud-rain"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Neerslagkans</span>
+                            <span class="stat-value" id="precipitation">--%</span>
+                        </div>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">UV-index</span>
-                        <span class="stat-value" id="uvIndex">--</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-sunrise"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Zonsopgang</span>
+                            <span class="stat-value" id="sunrise">--:--</span>
+                        </div>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Neerslagkans</span>
-                        <span class="stat-value" id="precipitation">--%</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Zonsopgang</span>
-                        <span class="stat-value" id="sunrise">--:--</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Zonsondergang</span>
-                        <span class="stat-value" id="sunset">--:--</span>
+                        <div class="stat-icon">
+                            <i class="fas fa-sunset"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Zonsondergang</span>
+                            <span class="stat-value" id="sunset">--:--</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -164,7 +218,7 @@
                         scrolling="no"
                         class="radar-iframe"
                         style="display: none;"
-                        onload="hideRadarLoading()">
+                        onload="window.hideRadarLoading()">
                     </iframe>
                     <div class="radar-overlay">
                         <div class="radar-controls">

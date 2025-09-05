@@ -704,13 +704,16 @@ body::after {
 .weather-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 20px;
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
+    gap: 16px;
+    margin-top: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .stat {
@@ -718,27 +721,107 @@ body::after {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 12px 8px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all var(--transition-smooth);
+    padding: 20px 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
-.stat:last-child {
-    border-bottom: none;
+.stat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat:hover::before {
+    opacity: 1;
+}
+
+.stat:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border-color: rgba(79, 172, 254, 0.3);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        0 4px 20px rgba(79, 172, 254, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Primary stats styling */
+.stat.primary-stat {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.08) 0%, rgba(79, 172, 254, 0.04) 100%);
+    border-color: rgba(79, 172, 254, 0.2);
+}
+
+.stat.primary-stat:hover {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(79, 172, 254, 0.08) 100%);
+    border-color: rgba(79, 172, 254, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.2),
+        0 4px 20px rgba(79, 172, 254, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(79, 172, 254, 0.05) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(79, 172, 254, 0.2);
+}
+
+.stat:hover .stat-icon {
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(79, 172, 254, 0.1) 100%);
+    transform: scale(1.1) rotate(5deg);
+    border-color: rgba(79, 172, 254, 0.4);
+}
+
+.stat-icon i {
+    font-size: 20px;
+    color: var(--accent-blue);
+    transition: all 0.3s ease;
+}
+
+.stat:hover .stat-icon i {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 }
 
 .stat-label {
-    font-size: 16px;
-    color: var(--text-secondary);
-    font-weight: 400;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
 }
 
 .stat-value {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 1.2rem;
     color: var(--text-primary);
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Card Titles */
@@ -1103,23 +1186,33 @@ body::after {
     }
     
     .weather-stats {
-        gap: 6px;
-        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
+        padding: 16px;
     }
     
     .stat {
-        padding: 6px;
-        font-size: 0.75rem;
+        padding: 16px 12px;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 8px;
+    }
+    
+    .stat-icon i {
+        font-size: 16px;
     }
     
     .stat-label {
-        font-size: 0.7rem;
-        opacity: 0.8;
+        font-size: 0.65rem;
+        margin-bottom: 2px;
     }
     
     .stat-value {
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: 1rem;
+        font-weight: 700;
     }
     
     .hourly-item {
@@ -1325,6 +1418,7 @@ body::after {
     position: relative;
     display: flex;
     align-items: center;
+    z-index: 10000;
 }
 
 .location-input {
@@ -1365,6 +1459,56 @@ body::after {
 .search-btn:hover {
     background: rgba(79, 172, 254, 0.1);
     transform: scale(1.1);
+}
+
+/* Location Suggestions */
+.location-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    margin-top: 4px;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.location-suggestions.show {
+    display: block;
+}
+
+.suggestion-header {
+    padding: 12px 16px 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.suggestion-item:hover {
+    background: rgba(79, 172, 254, 0.1);
+    color: var(--text-primary);
+    transform: translateX(4px);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 12px 12px;
 }
 
 /* Radar Loading */

@@ -64,6 +64,9 @@ class WeatherApp {
         window.openBuienradarWebsite = () => this.openBuienradarWebsite();
         window.hideRadarLoading = () => this.hideRadarLoading();
         window.searchLocation = () => this.searchLocation();
+        window.showLocationSuggestions = () => this.showLocationSuggestions();
+        window.hideLocationSuggestions = () => this.hideLocationSuggestions();
+        window.selectLocation = (city) => this.selectLocation(city);
         
         refreshBtn.addEventListener('click', () => this.refreshWeather());
         retryBtn.addEventListener('click', () => this.retryLoad());
@@ -77,33 +80,36 @@ class WeatherApp {
 
     async getCurrentLocation() {
         return new Promise((resolve) => {
-            // Always use Amsterdam for demo mode to avoid geolocation issues
-            this.currentLocation = {
-                lat: 52.3676,
-                lon: 4.9041
-            };
-            this.updateLocationDisplay('Amsterdam, NL');
-            resolve(this.currentLocation);
-            
-            // Optional: Try to get real location in background (only if not demo mode)
-            if (navigator.geolocation && !this.isDemoMode) {
+            // Try to get real location first
+            if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         this.currentLocation = {
                             lat: position.coords.latitude,
                             lon: position.coords.longitude
                         };
+                        console.log('Real location detected:', this.currentLocation);
                         this.updateLocationDisplay();
+                        resolve(this.currentLocation);
                     },
                     (error) => {
-                        console.log('Geolocation not available, using Amsterdam');
+                        console.log('Geolocation error, using fallback location');
+                        // Fallback to Amsterdam if geolocation fails
+                        this.currentLocation = { lat: 52.3676, lon: 4.9041 };
+                        this.updateLocationDisplay('Amsterdam, NL');
+                        resolve(this.currentLocation);
                     },
                     {
-                        enableHighAccuracy: false,
-                        timeout: 1000,
+                        enableHighAccuracy: true,
+                        timeout: 5000,
                         maximumAge: 300000
                     }
                 );
+            } else {
+                // No geolocation support, use fallback
+                this.currentLocation = { lat: 52.3676, lon: 4.9041 };
+                this.updateLocationDisplay('Amsterdam, NL');
+                resolve(this.currentLocation);
             }
         });
     }
@@ -812,13 +818,13 @@ class WeatherApp {
                 // Fallback: use demo coordinates for major cities
                 const cityCoords = this.getCityCoordinates(query);
                 if (cityCoords) {
-                    this.currentLocation = cityCoords;
-                    this.updateElement('cityName', query);
-                    this.saveLocationToCookies(query, 'NL');
+                    this.currentLocation = { lat: cityCoords.lat, lon: cityCoords.lon };
+                    this.updateElement('cityName', `${query}, ${cityCoords.country}`);
+                    this.saveLocationToCookies(query, cityCoords.country);
                     await this.loadWeatherData();
                     input.value = '';
                 } else {
-                    alert('Locatie niet gevonden. Probeer: Amsterdam, Rotterdam, Den Haag, Utrecht, etc.');
+                    alert('Locatie niet gevonden. Probeer: Amsterdam, Brussel, Rotterdam, Antwerpen, Gent, etc.');
                 }
             }
         } catch (error) {
@@ -829,16 +835,28 @@ class WeatherApp {
 
     getCityCoordinates(cityName) {
         const cities = {
-            'amsterdam': { lat: 52.3676, lon: 4.9041 },
-            'rotterdam': { lat: 51.9244, lon: 4.4777 },
-            'den haag': { lat: 52.0705, lon: 4.3007 },
-            'utrecht': { lat: 52.0907, lon: 5.1214 },
-            'eindhoven': { lat: 51.4416, lon: 5.4697 },
-            'tilburg': { lat: 51.5555, lon: 5.0913 },
-            'groningen': { lat: 53.2194, lon: 6.5665 },
-            'almere': { lat: 52.3508, lon: 5.2647 },
-            'breda': { lat: 51.5719, lon: 4.7683 },
-            'nijmegen': { lat: 51.8426, lon: 5.8520 }
+            // Nederland
+            'amsterdam': { lat: 52.3676, lon: 4.9041, country: 'NL' },
+            'rotterdam': { lat: 51.9244, lon: 4.4777, country: 'NL' },
+            'den haag': { lat: 52.0705, lon: 4.3007, country: 'NL' },
+            'utrecht': { lat: 52.0907, lon: 5.1214, country: 'NL' },
+            'eindhoven': { lat: 51.4416, lon: 5.4697, country: 'NL' },
+            'tilburg': { lat: 51.5555, lon: 5.0913, country: 'NL' },
+            'groningen': { lat: 53.2194, lon: 6.5665, country: 'NL' },
+            'almere': { lat: 52.3508, lon: 5.2647, country: 'NL' },
+            'breda': { lat: 51.5719, lon: 4.7683, country: 'NL' },
+            'nijmegen': { lat: 51.8426, lon: 5.8520, country: 'NL' },
+            // België
+            'brussel': { lat: 50.8503, lon: 4.3517, country: 'BE' },
+            'antwerpen': { lat: 51.2194, lon: 4.4025, country: 'BE' },
+            'gent': { lat: 51.0543, lon: 3.7174, country: 'BE' },
+            'brugge': { lat: 51.2093, lon: 3.2247, country: 'BE' },
+            'leuven': { lat: 50.8798, lon: 4.7005, country: 'BE' },
+            'mechelen': { lat: 51.0259, lon: 4.4776, country: 'BE' },
+            'aarschot': { lat: 50.9842, lon: 4.8319, country: 'BE' },
+            'hasselt': { lat: 50.9307, lon: 5.3325, country: 'BE' },
+            'genk': { lat: 50.9651, lon: 5.5001, country: 'BE' },
+            'leuven': { lat: 50.8798, lon: 4.7005, country: 'BE' }
         };
         
         const normalizedCity = cityName.toLowerCase().trim();
@@ -876,6 +894,36 @@ class WeatherApp {
             const radarUrl = 'https://image.buienradar.nl/2.0/image/single/RadarMapRainNL?height=300&width=300&renderBackground=True&renderBranding=False&renderText=True&t=' + Date.now();
             iframe.src = radarUrl;
         }
+    }
+
+    showLocationSuggestions() {
+        const suggestions = document.getElementById('locationSuggestions');
+        if (suggestions) {
+            suggestions.classList.add('show');
+        }
+    }
+
+    hideLocationSuggestions() {
+        // Delay hiding to allow clicking on suggestions
+        setTimeout(() => {
+            const suggestions = document.getElementById('locationSuggestions');
+            if (suggestions) {
+                suggestions.classList.remove('show');
+            }
+        }, 200);
+    }
+
+    async selectLocation(cityName) {
+        const input = document.getElementById('locationSearch');
+        if (input) {
+            input.value = cityName;
+        }
+        
+        // Hide suggestions
+        this.hideLocationSuggestions();
+        
+        // Search for the location
+        await this.searchLocation();
     }
 
     loadBuienradarIframe() {
@@ -927,21 +975,27 @@ class WeatherApp {
             return;
         }
 
-        // Always show Amsterdam for demo mode
-        if (this.isDemoMode) {
-            this.updateElement('cityName', 'Amsterdam');
-            this.updateElement('lastUpdated', new Date().toLocaleTimeString('nl-NL', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            }));
-            return;
-        }
-
-        if (this.weatherData && this.weatherData.timezone) {
-            const cityName = this.weatherData.timezone.split('/')[1]?.replace('_', ' ') || 'Amsterdam';
-            this.updateElement('cityName', cityName);
+        // Try to determine location from coordinates
+        if (this.currentLocation) {
+            const { lat, lon } = this.currentLocation;
+            
+            // Simple location detection based on coordinates
+            if (lat >= 50.5 && lat <= 53.5 && lon >= 3.0 && lon <= 7.5) {
+                // Netherlands/Belgium region
+                if (lat >= 51.0 && lat <= 51.5 && lon >= 4.0 && lon <= 4.5) {
+                    this.updateElement('cityName', 'Amsterdam, NL');
+                } else if (lat >= 50.8 && lat <= 50.9 && lon >= 4.3 && lon <= 4.4) {
+                    this.updateElement('cityName', 'Brussel, BE');
+                } else if (lat >= 51.2 && lat <= 51.3 && lon >= 4.4 && lon <= 4.5) {
+                    this.updateElement('cityName', 'Antwerpen, BE');
+                } else {
+                    this.updateElement('cityName', 'Nederland/België');
+                }
+            } else {
+                this.updateElement('cityName', `Locatie: ${lat.toFixed(2)}, ${lon.toFixed(2)}`);
+            }
         } else {
-            this.updateElement('cityName', 'Amsterdam');
+            this.updateElement('cityName', 'Locatie detecteren...');
         }
         
         // Update last updated time
