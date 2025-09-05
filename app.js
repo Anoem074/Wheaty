@@ -15,6 +15,10 @@ class WeatherApp {
     async init() {
         this.setupEventListeners();
         this.hideLoading(); // Hide loading immediately on start
+        
+        // Try to load location from cookies first
+        const hasLocationCookie = this.loadLocationFromCookies();
+        
         await this.getCurrentLocation();
         
         // Load demo data immediately for instant experience
@@ -22,8 +26,10 @@ class WeatherApp {
             console.log('Loading demo weather data instantly');
             this.weatherData = this.getDemoWeatherData();
             this.updateWeatherDisplay();
-            this.updateLocationDisplay();
-            this.loadBuienradar(); // Load radar in background
+            if (!hasLocationCookie) {
+                this.updateLocationDisplay();
+            }
+            this.initializeRadar();
             this.hideLoading(); // Hide loading immediately
         } else {
             // Try to load cached data first
@@ -32,7 +38,10 @@ class WeatherApp {
                 console.log('Using cached weather data');
                 this.weatherData = cachedData.data;
                 this.updateWeatherDisplay();
-                this.updateLocationDisplay();
+                if (!hasLocationCookie) {
+                    this.updateLocationDisplay();
+                }
+                this.initializeRadar();
             } else {
                 await this.loadWeatherData();
             }
@@ -52,6 +61,9 @@ class WeatherApp {
         // Radar controls
         window.refreshRadar = () => this.refreshRadar();
         window.toggleRadarFullscreen = () => this.toggleRadarFullscreen();
+        window.openBuienradarWebsite = () => this.openBuienradarWebsite();
+        window.hideRadarLoading = () => this.hideRadarLoading();
+        window.searchLocation = () => this.searchLocation();
         
         refreshBtn.addEventListener('click', () => this.refreshWeather());
         retryBtn.addEventListener('click', () => this.retryLoad());
@@ -715,12 +727,18 @@ class WeatherApp {
     }
 
     refreshRadar() {
-        const iframe = document.querySelector('.radar-iframe');
+        const iframe = document.getElementById('radarIframe');
+        const loading = document.getElementById('radarLoading');
+        
         if (iframe) {
+            // Show loading
+            if (loading) loading.style.display = 'block';
+            iframe.style.display = 'none';
+            
             // Add timestamp to force refresh
             const timestamp = new Date().getTime();
-            const baseUrl = iframe.src.split('?')[0];
-            iframe.src = `${baseUrl}?t=${timestamp}`;
+            const radarUrl = `https://image.buienradar.nl/2.0/image/single/RadarMapRainNL?height=300&width=300&renderBackground=True&renderBranding=False&renderText=True&t=${timestamp}`;
+            iframe.src = radarUrl;
             
             // Show refresh animation
             const btn = event.target.closest('.radar-btn');
@@ -743,6 +761,120 @@ class WeatherApp {
                 container.classList.add('fullscreen');
                 document.body.style.overflow = 'hidden';
             }
+        }
+    }
+
+    openBuienradarWebsite() {
+        window.open('https://www.buienradar.nl', '_blank');
+    }
+
+    hideRadarLoading() {
+        const loading = document.getElementById('radarLoading');
+        const iframe = document.getElementById('radarIframe');
+        if (loading) loading.style.display = 'none';
+        if (iframe) iframe.style.display = 'block';
+    }
+
+    async searchLocation() {
+        const input = document.getElementById('locationSearch');
+        const query = input.value.trim();
+        
+        if (!query) return;
+        
+        try {
+            // Use a geocoding service to get coordinates
+            const response = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=1&appid=demo`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.length > 0) {
+                    const location = data[0];
+                    this.currentLocation = {
+                        lat: location.lat,
+                        lon: location.lon
+                    };
+                    
+                    // Update location display
+                    this.updateElement('cityName', `${location.name}, ${location.country}`);
+                    
+                    // Save to cookies
+                    this.saveLocationToCookies(location.name, location.country);
+                    
+                    // Load weather for new location
+                    await this.loadWeatherData();
+                    
+                    // Clear search input
+                    input.value = '';
+                } else {
+                    alert('Locatie niet gevonden. Probeer een andere naam.');
+                }
+            } else {
+                // Fallback: use demo coordinates for major cities
+                const cityCoords = this.getCityCoordinates(query);
+                if (cityCoords) {
+                    this.currentLocation = cityCoords;
+                    this.updateElement('cityName', query);
+                    this.saveLocationToCookies(query, 'NL');
+                    await this.loadWeatherData();
+                    input.value = '';
+                } else {
+                    alert('Locatie niet gevonden. Probeer: Amsterdam, Rotterdam, Den Haag, Utrecht, etc.');
+                }
+            }
+        } catch (error) {
+            console.error('Error searching location:', error);
+            alert('Er is een fout opgetreden bij het zoeken naar de locatie.');
+        }
+    }
+
+    getCityCoordinates(cityName) {
+        const cities = {
+            'amsterdam': { lat: 52.3676, lon: 4.9041 },
+            'rotterdam': { lat: 51.9244, lon: 4.4777 },
+            'den haag': { lat: 52.0705, lon: 4.3007 },
+            'utrecht': { lat: 52.0907, lon: 5.1214 },
+            'eindhoven': { lat: 51.4416, lon: 5.4697 },
+            'tilburg': { lat: 51.5555, lon: 5.0913 },
+            'groningen': { lat: 53.2194, lon: 6.5665 },
+            'almere': { lat: 52.3508, lon: 5.2647 },
+            'breda': { lat: 51.5719, lon: 4.7683 },
+            'nijmegen': { lat: 51.8426, lon: 5.8520 }
+        };
+        
+        const normalizedCity = cityName.toLowerCase().trim();
+        return cities[normalizedCity] || null;
+    }
+
+    saveLocationToCookies(city, country) {
+        const locationData = { city, country, timestamp: Date.now() };
+        document.cookie = `weatherLocation=${JSON.stringify(locationData)}; max-age=86400; path=/`;
+    }
+
+    loadLocationFromCookies() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'weatherLocation') {
+                try {
+                    const locationData = JSON.parse(decodeURIComponent(value));
+                    if (locationData.city) {
+                        this.updateElement('cityName', `${locationData.city}, ${locationData.country}`);
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('Error parsing location cookie:', error);
+                }
+            }
+        }
+        return false;
+    }
+
+    initializeRadar() {
+        const iframe = document.getElementById('radarIframe');
+        if (iframe) {
+            // Use a more reliable radar URL
+            const radarUrl = 'https://image.buienradar.nl/2.0/image/single/RadarMapRainNL?height=300&width=300&renderBackground=True&renderBranding=False&renderText=True&t=' + Date.now();
+            iframe.src = radarUrl;
         }
     }
 
